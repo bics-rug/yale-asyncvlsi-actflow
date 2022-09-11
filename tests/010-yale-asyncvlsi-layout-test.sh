@@ -24,4 +24,10 @@ lookup_binary "actrectbbox"
 lookup_shared_library "pass_layout.so"
 lookup_shared_library "pass_stk.so"
 
-# ctest unit tests are run on build, cant be run in install tree
+echo 
+echo "#### layout test suit ####"
+echo
+
+cd $EDA_SRC/layout
+
+make runtest || exit 1
