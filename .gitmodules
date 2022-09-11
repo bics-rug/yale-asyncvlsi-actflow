@@ -44,7 +44,7 @@
 	branch = main
 [submodule "chp2prs"]
 	path = chp2prs
-	url = https://github.com/asyncvlsi/chp2prs
+	url = https://github.com/bics-rug/chp2prs
 	branch = master
 [submodule "dflowmap"]
 	path = dflowmap
@@ -56,7 +56,7 @@
 	branch = main
 [submodule "actsim"]
 	path = actsim
-	url = https://github.com/asyncvlsi/actsim
+	url = https://github.com/olerichter/yale-asyncvlsi-actsim
 	branch = master
 [submodule "layout"]
 	path = layout
