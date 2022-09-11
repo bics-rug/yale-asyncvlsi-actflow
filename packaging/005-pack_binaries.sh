@@ -38,11 +38,23 @@ cd $ACT_HOME/..
 tar -czf $WORK_DIR/actflow_package_${CIRCLE_SHA1:0:6}_$(date '+%Y-%m-%d').tar.gz $(realpath --relative-to ./ $ACT_HOME)
 
 # create a package that has all static libs and includes removed
+rm -rf $ACT_HOME/include
+rm -rf $ACT_HOME/share/cmake*
+rm -rf $ACT_HOME/share/pkgconfig
 find $ACT_HOME -type f -name "*.a" -delete
 find $ACT_HOME -type f -name "*.h" -delete
 find $ACT_HOME -type f -name "*.H" -delete
 find $ACT_HOME -type f -name "*.hpp" -delete
 find $ACT_HOME -type f -name "*.cmake" -delete
+find $ACT_HOME -type f -name "cmake*" -delete
+find $ACT_HOME -type f -name "*.cmake.in" -delete
+find $ACT_HOME -type f -name "*.cpp" -delete
+find $ACT_HOME -type f -name "*.c" -delete
+find $ACT_HOME -type f -name "*.ipp" -delete
+find $ACT_HOME -type f -name "*.f" -delete
+find $ACT_HOME -type f -name "*.f03" -delete
+find $ACT_HOME -type f -name "Makefile*" -delete
+find $ACT_HOME -type f -name "*.m4" -delete
 find $ACT_HOME -type d -empty -delete
 
-tar -czf $WORK_DIR/actflow_package_slim_${CIRCLE_SHA1:0:6}_$(date '+%Y-%m-%d').tar.gz $(realpath --relative-to ./ $ACT_HOME)
+tar -czf $WORK_DIR/actflow_slim_package_${CIRCLE_SHA1:0:6}_$(date '+%Y-%m-%d').tar.gz $(realpath --relative-to ./ $ACT_HOME)
