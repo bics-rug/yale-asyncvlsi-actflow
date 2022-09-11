@@ -424,10 +424,9 @@ workflows:
         -  test-opensuse15:
              requires:
                - build-centos7 
-        # the shell somehow loads our libreadline and cant find up
-        #-  test-archlinux:
-        #     requires:
-        #       - build-centos7 
+        -  test-archlinux:
+             requires:
+               - build-centos7 
         -  test-fedora-20:
              requires:
                - build-centos7 
@@ -447,7 +446,11 @@ workflows:
                - test-ubuntu18
                - test-ubuntu16
                - test-opensuse15
-               #- test-archlinux
+               - test-archlinux
                - test-fedora-20
                - test-fedora-latest
+             filters:
+               branches:
+                 only:
+                   - main
               
