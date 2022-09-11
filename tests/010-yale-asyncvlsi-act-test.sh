@@ -53,6 +53,8 @@ echo
 echo " patching tests "
 
 # in the prebuild environment dont run make use the prebuild version 
+cd $EDA_SRC/act
+
 if [ -f ${ACT_HOME}/lib/ext.lib ]; then 
 sed -i 's/make/#make/' act/test/dl/run.sh
 sed -i 's/make/#make/' act/test/dl/run_vg.sh
