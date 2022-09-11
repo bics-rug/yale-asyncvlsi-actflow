@@ -60,5 +60,5 @@
 	branch = master
 [submodule "layout"]
 	path = layout
-	url = https://github.com/asyncvlsi/layout
+	url = https://github.com/olerichter/yale-asyncvlsi-layout
 	branch = master
