@@ -35,7 +35,7 @@ then
      patch -p0 < ../extra/Galois4
    )
    # dali unit tests are outdated/internal use remove them, for more details see https://github.com/asyncvlsi/Dali/issues/3
-   (cd Dali/tests;
+   (cd Dali/tests/ioplacer;
     head -n 6 CMakeLists.txt > CMakeLists.txt
    )
    touch patched
