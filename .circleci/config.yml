@@ -468,8 +468,4 @@ workflows:
                #- test-archlinux
                - test-fedora-20
                - test-fedora-latest
-             filters:
-               branches:
-                 only:
-                   - main
               
