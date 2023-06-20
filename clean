@@ -15,17 +15,27 @@ do
 	(cd $i; rm -rf build)
 done
 
-echo "*** interact ***"
-(cd interact; make realclean)
+for i in interact layout expropt chp2prs prs2fpga xcell dflow2dot actsim
+do
+   echo "*** $i ***"
+   (cd $i; make realclean)
+done
 
-echo "*** layout ***"
-(cd layout; make realclean)
+if [ -f timing/actpin.h ]
+then
+   echo "*** timing ***"
+   (cd timing/cyclone; rm -rf build)
+   (cd timing/galois_eda; rm -rf build)
+fi
 
-echo "*** expropt ***"
-(cd expropt; make realclean)
+if [ -f dflowmap_netlist/build.sh ]
+then
+   echo "*** dflowmap_netlist ***"
+   (cd dflowmap_netlist; rm -rf build)
+fi
 
-echo "*** chp2prs ***"
-(cd chp2prs; make realclean)
-
-echo "*** actsim ***"
-(cd actsim; make realclean)
+if [ -f expropt_commercial/Makefile ]
+then
+   echo "*** expropt_commercial ***"
+   (cd expropt_commercial; make realclean)
+fi

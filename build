@@ -6,12 +6,34 @@ then
         exit 1
 fi
 
+if [ -f CXX_COMPILER ]
+then
+	rm CXX_COMPILER
+fi
+if [ -f CXX_LIBFS ]
+then
+	rm CXX_LIBFS
+fi
+./check_omp.sh || exit 1
+./check_filesystem.sh || exit 1
+
+cxx_compiler=`cat CXX_COMPILER`
+
+needlib=""
+needmake=""
+
+if [ -f CXX_LIBFS ]
+then
+   needlib="-DNEED_LIBCXXFS=1"
+   needmake="NEED_LIBCXXFS=1"
+fi
+
 cmake_build() {
   dir=$1
   echo 
   echo "#### Building and installing package: $1 ####"
   echo
-  (cd $dir; if [ ! -d build ]; then mkdir build; fi; cd build; cmake -DCMAKE_INSTALL_PREFIX=$ACT_HOME -DCMAKE_LIBRARY_PATH=$ACT_HOME/lib -DCMAKE_INCLUDE_PATH=$ACT_HOME/include -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON .. && make && make install ) || exit 1
+  (cd $dir; if [ -x ./configure ]; then ./configure; fi; if [ ! -d build ]; then mkdir build; fi; cd build; cmake -DCMAKE_INSTALL_PREFIX=$ACT_HOME -DCMAKE_CXX_COMPILER=$cxx_compiler $needlib -DCMAKE_LIBRARY_PATH=$ACT_HOME/lib -DCMAKE_INCLUDE_PATH=$ACT_HOME/include -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON .. && make && make install ) || exit 1
 }
 
 cmake_build_test() {
@@ -27,7 +49,15 @@ cmake_build_test_bipart() {
   echo
   echo "#### Building and installing package: Bipart ####"
   echo
-  (cd BiPart; if [ ! -d build ]; then mkdir build; fi; cd build; LEF_ROOT=$ACT_HOME GALOIS_INCLUDE=$ACT_HOME/include GALOIS_LIB=$ACT_HOME/lib DEF_ROOT=$ACT_HOME cmake -DCMAKE_INSTALL_PREFIX=$ACT_HOME -DCMAKE_LIBRARY_PATH=$ACT_HOME/lib -DCMAKE_INCLUDE_PATH=$ACT_HOME/include -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..  && make && make install && CTEST_OUTPUT_ON_FAILURE=TRUE make test ) || exit 1
+  (cd BiPart; if [ ! -d build ]; then mkdir build; fi; cd build; LEF_ROOT=$ACT_HOME GALOIS_INCLUDE=$ACT_HOME/include GALOIS_LIB=$ACT_HOME/lib DEF_ROOT=$ACT_HOME cmake -DCMAKE_INSTALL_PREFIX=$ACT_HOME -DCMAKE_CXX_COMPILER=$cxx_compiler $needlib -DCMAKE_LIBRARY_PATH=$ACT_HOME/lib -DCMAKE_INCLUDE_PATH=$ACT_HOME/include -DCMAKE_EXE_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-rpath,'$ORIGIN/../lib' -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..  && make && make install && CTEST_OUTPUT_ON_FAILURE=TRUE make test ) || exit 1
+}
+
+act_tool_build() {
+  dir=$1
+  echo 
+  echo "#### Building and installing package: $1 ####"
+  echo
+  (cd $dir; if [ -x ./configure ]; then ./configure; fi; make CXX=$cxx_compiler $needmake depend && make CXX=$cxx_compiler $needmake && make install) || exit 1
 }
 
 #
@@ -52,7 +82,7 @@ echo
 echo "####  Building and installing the core ACT library ####"
 echo
 export VLSI_TOOLS_SRC=`pwd`/act
-(cd act; ./configure $ACT_HOME CFLAGS="-I${ACT_HOME}/include -L${ACT_HOME}/lib"; ./build; make install) || exit 1
+(cd act; ./configure $ACT_HOME CXX=$cxx_compiler CFLAGS="-I${ACT_HOME}/include -L${ACT_HOME}/lib"; ./build; make install) || exit 1
 
 #
 # Build and install the Galois library
@@ -71,17 +101,28 @@ echo "####  Building and installing the LEF/DEF parser ####"
 echo
 (cd lefdef; make && make install) || exit 1
 
+
 #
 # Build and install... 
 
 # phyDB
 cmake_build_test phyDB
 
+#
+# Build and install the timing library, if it exists
+#
+if [ -f timing/actpin.h ]
+then
+    echo
+    echo "#### Building and installing timing library ####"
+    echo
+    (cd timing; ./build.sh) || exit 1
+    echo "#### Rebuilding phydb ####"
+    cmake_build phyDB
+fi
+
 # layout
-echo
-echo "#### Building layout ####"
-echo
-(cd layout; make depend && make && make install) || exit 1
+act_tool_build layout
 
 # BiPart
 cmake_build_test_bipart
@@ -99,41 +140,62 @@ cmake_build_test SPRoute
 cmake_build TritonRoute-WXL
 
 # interact
-echo
-echo "#### Building interact ####"
-echo
-(cd interact; ./configure; make depend && make && make install) || exit 1
+act_tool_build interact
 
 # stdlib
-echo 
-echo "#### Installing ACT std lib ####"
-echo
-(cd stdlib; make install) || exit 1
+act_tool_build stdlib
 
+# expropt_commercial
+if [ -f expropt_commercial/Makefile ]
+then
+   act_tool_build expropt_commercial
+fi
 
 # expropt
-echo
-echo "#### Building expropt ####"
-echo
-(cd expropt; ./configure; make depend && make && make install) || exit 1
+act_tool_build expropt
 
 #
 # chp2prs
-echo
-echo "#### Building chp2prs ####"
-echo
-(cd chp2prs; ./configure; make depend && make && make install) || exit 1
+act_tool_build chp2prs
 
 #
 # dflowmap
-echo
-echo "#### Building dflowmap ####"
-echo
-(cd dflowmap; ./configure; cd ..; cmake_build dflowmap) || exit 1
+cmake_build dflowmap
+
+#
+# dflowmap_netlist, if it exists
+#
+if [ -f dflowmap_netlist/build.sh ]
+then
+    cmake_build dflowmap_netlist
+    cmake_build dflowmap
+fi
+
+
+#
+# prs2fpga
+act_tool_build prs2fpga
+
+#
+# xcell
+act_tool_build xcell
+
+#
+# dflow2dot
+act_tool_build dflow2dot
+
+#
+# sky130l
+act_tool_build sky130l
+
+#
+# utils
+act_tool_build utils
+
 
 # actsim
 echo 
 echo "#### Building actsim ####"
 echo 
 if [ -f ${ACT_HOME}/include/xyce.in ]; then cp ${ACT_HOME}/include/xyce.in actsim/; fi
-(cd actsim; ./configure; make depend && make && make install) || exit 1
+(cd actsim; ./configure; ./build.sh; make install) || exit 1

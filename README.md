@@ -1,8 +1,11 @@
 # The ACT flow for implementing asynchronous logic
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/asyncvlsi/actflow/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/asyncvlsi/actflow/tree/main)
+
 This repository contains the key modules required to use the ACT implementation flow for asynchronous logic.
 The parallel algorithms used in the implemention flow use a combination of OpenMP and the [Galois](https://github.com/IntelligentSoftwareSystems/Galois)
-library. 
+library.
+
 
 ## Install from prebuild package
 
@@ -44,9 +47,11 @@ The README provided by yosys has detailed installation instructions.
 
 ## Steps
 
-1. Pick an installation directory for all the tools, and set the environment variable `ACT_HOME` to this directory. Create this directory.
+1. Pick an installation directory for all the tools, and set the environment variable `ACT_HOME` to this directory. Create this directory. 
 
-2. Run `./build`
+2. Make sure you have all the submodules needed as well (`git submodule update --init --recursive`), if you didn't clone the repo with all the submodules.
+
+3. Run `./build`
 
 This should build and install all the libraries and tools needed.
 
@@ -58,7 +63,7 @@ you can test a subsection of the tools by running `./test` to test your install
 
 If you use this flow for a publication, we would appreciate a citation to the following overview paper that summarizes the flow:
 
-   * S. Ataei, Wenmian Hua, Yihang Yang, Rajit Manohar, Yi-Shan Lu, Jiayuan He, Sepideh Maleki, Keshav Pingali, "An Open-Source EDA Flow for Asynchronous Logic," in IEEE Design & Test, vol. 38, no. 2, pp. 27-37, April 2021, doi: 10.1109/MDAT.2021.3051334.
+   * Samira Ataei, Wenmian Hua, Yihang Yang, Rajit Manohar, Yi-Shan Lu, Jiayuan He, Sepideh Maleki, Keshav Pingali, "An Open-Source EDA Flow for Asynchronous Logic," in IEEE Design & Test, vol. 38, no. 2, pp. 27-37, April 2021, doi: 10.1109/MDAT.2021.3051334.
 
 ## Packaging
 
